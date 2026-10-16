@@ -23,5 +23,5 @@ class NodeManager:
   def children(self)->List[str]:
     return [child.Name for child in [node for node in self.node.ChildNodes if node is not None]]
 
-def new(Name: str, Text: str, Parent: Option[Node]):
+def new(Name: str, Text: str, Parent: Optional[Node]):
   return Node(Name, Text, Parent, [])
