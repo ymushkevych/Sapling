@@ -1,22 +1,55 @@
-#!/usr/bin/env python3    
+#!/usr/bin/env -S python3 -B   
 import argparse
 import os
 import time
 import sys
 from pathlib import Path
+import nodes
+from nodes import Node
+import trees
+from trees import Tree
+
+sys.dont_write_bytecode=True
 
 now = time.asctime()
 
-parser = argparse.ArgumentParser(prog="syntree.py", usage="%(prog)s [options]", color=False)
+parser = argparse.ArgumentParser(prog="syntree.py", usage="%(prog)s [options]", color=False, description="Linguistic syntax tree manager and visualizer")
 
 parser.add_argument("-n", "--new", nargs=1, type=str, help="make a new tree with the given name", metavar="<name>", dest="new")
 parser.add_argument("-d","--delete", nargs=1, type=str, help="delete the given tree", metavar="<tree>", dest="delete")
 parser.add_argument("-r", "--rename", nargs=2, type=str, help="rename the given tree to the new name", metavar=("<old name>", "<new name>"), dest="rename")
 parser.add_argument("-c", "--clear", nargs=1, type=str, help="clear the given tree without deleting it", metavar="<tree>", dest="clear")
 parser.add_argument("-l", "--list", action='store_true', help="list all trees in the current directory", dest="list")
+parser.add_argument("-e", "--edit", nargs=1, type=str, help="edit the given tree", metavar="<tree>", dest = "edit")
 
 argv = parser.parse_args()
 
+def parse_edit_commands(tree_name: str, cmds: list[str])->str:
+    match cmds[0]:
+      case "add":
+        if len (cmds) == 3:
+          return str.format("trees.add_node({Tree(tree_name)}, {cmds[1]}, {cmds[2]}")
+        else:
+          print(f"too little or too few arguments passed. Expected 3, got {len(cmds)}")
+          sys.exit(1)
+      case "remove":
+        if len(cmds) == 2:
+          return str.format("trees.remove_node({Tree(tree_name)}, {cmds[1]}")
+        else:
+          print(f"too little or too few arguments passed. Expected 2, got {len(cmds)}")
+          sys.exit(1)
+          
+def edit_tree(name: str):
+  if os.path.isfile(f"{name}.json"):
+    cmd = input()
+    while cmd.lower() != "done":
+      cmd = cmd.split()
+      eval(parse_edit_commands(name, cmd))
+    return 0
+  else:
+    print(f"\"{name}\" cannot be edited as it does not exist")
+    sys.exit(1)
+    
 def list_trees():
   if len([item for item in Path ("./").glob("*.json") if item.is_file()]) == 0:
     print(f"No trees found in current directory")
@@ -102,6 +135,11 @@ def main():
         pass
       case _:
         clear_tree(argv.clear[0])
+    match argv.edit:
+      case None:
+        pass
+      case _:
+        edit_tree(argv.edit[0])
 
 if __name__ == "__main__":
   main()
