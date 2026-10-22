@@ -17,7 +17,7 @@ parser.add_argument("-l", "--list", action='store_true', help="list all trees in
 parser.add_argument("-e", "--edit", nargs=1, type=str, help="edit the given tree", metavar="<tree>", dest="edit")
 
 argv = parser.parse_args()
-argSep = ":"
+argSep: str = ":"
 
 def parse_edit_commands(tree: trees.Tree, cmds: list[str]):
 	match cmds[0].strip():
@@ -44,9 +44,9 @@ def parse_edit_commands(tree: trees.Tree, cmds: list[str]):
 def edit_tree(name: str):
 	if os.path.isfile(f"{name}.json"):
 		cmd = str(input("\033[90m- \033[0m"))
-		tree: trees.Tree = trees.read(f"{name}")
+		tree: trees.Tree = trees.read(name)
 		while str(cmd).lower() != "done":
-			cmdarr = cmd.split(f"{argSep}")
+			cmdarr = cmd.split(argSep)
 			parse_edit_commands(tree, cmdarr)
 			cmd = str(input("\033[90m- \033[0m"))
 		return 0
