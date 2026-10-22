@@ -23,25 +23,28 @@ def parse_edit_commands(tree: trees.Tree, cmds: list[str]):
 	match cmds[0].strip():
 		case "add":
 			if len (cmds) == 4:
-				tree.Nodes = trees.TreeManager(tree).add_node(cmds[1].strip(), cmds[2].strip(), cmds[3].strip())
+				tree.Nodes = tree.add_node(cmds[1].strip(), cmds[2].strip(), cmds[3].strip())
 			else:
 				print(f"\033[90mToo little or too few arguments passed. Expected 3, got {len(cmds)-1}\033[0m")
 		case "remove":
 			if len(cmds) == 2:
-				tree.Nodes = trees.TreeManager(tree).remove_node(cmds[1].strip())
+				tree.Nodes = tree.remove_node(cmds[1].strip())
 			else:
 				print(f"\033[90mToo little or too few arguments passed. Expected 1, got {len(cmds)-1}\033[0m")
 		case "help":
-			print (f"\x1b[1mAddingNodes\x1b[0m add {argSep} <name> {argSep} <text> {argSep} <parent name>")
-			print (f"\x1b[1mRemovingNodes\x1b[0m remove{argSep} <name>")
-			print (f"\x1b[1mFinishEditing\x1b[0m done")
+			print (f"\033[90m\x1b[1mAddingNodes\x1b[0m \033[90madd {argSep} <name> {argSep} <text> {argSep} <parent name>\033[0m")
+			print (f"\033[90m\x1b[1mRemovingNodes\x1b[0m \033[90mremove {argSep} <name>\033[0m")
+			print (f"\033[90m\x1b[1mFinishEditing\x1b[0m \033[90mdone\033[0m")
+			print (f"\033[90m\x1b[1mSave\x1b[0m \033[90msave\033[0m")
+		case "save":
+			tree.store(f"./{tree.Name}.json")
 		case _:
 			print (f"\033[90munrecognized command\033[0m")
 
 def edit_tree(name: str):
 	if os.path.isfile(f"{name}.json"):
 		cmd = str(input("\033[90m- \033[0m"))
-		tree: trees.Tree = trees.new(name)
+		tree: trees.Tree = trees.read(f"{name}")
 		while str(cmd).lower() != "done":
 			cmdarr = cmd.split(f"{argSep}")
 			parse_edit_commands(tree, cmdarr)
@@ -77,7 +80,7 @@ def rename_tree(old_name: str, new_name: str):
 def clear_tree(name: str):
 	if os.path.isfile(f"{name}.json"):
 		with open(f"{name}.json") as tree:
-			pass
+			tree = ""
 		print(f"\033[90mTree \"{name}\" successfully cleared on {now}\033[0m")
 	else:
 		print(f"\033[90m\"{name}\" cannot be cleared as it does not exist\033[0m")
