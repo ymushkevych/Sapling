@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Optional
-import nodes, sys, os, json
+import nodes, sys, os, json, config
 
 sys.dont_write_bytecode=True
 
@@ -45,6 +45,9 @@ class Tree:
 		return None
 
 	def add_node(self, nodeName: str, nodeText: str, parent: str)->list[node.Nodes]:
+		if parent ==  self.Name:
+			print(f"\033[90mONly one top-level node allowed per tree\033[0m")
+			return self.Nodes
 		existing_nodes = self.node_names()
 		if nodeName in existing_nodes:
 			print(f"\033[90m\"{nodeName}\" is already a node in \"{self.Name}\"\033[0m")
@@ -119,4 +122,4 @@ def read(self, fileName: str):
 				tree.Nodes.append(read_nodes(node, fileName, treeJson['Nodes']))
 		return tree
 def new(treeName: str)->Tree:
-	return Tree(treeName, [nodes.new("S", "Sentence", treeName)])
+	return Tree(treeName, [nodes.new(config.rootname(), config.roottext(), treeName)])
