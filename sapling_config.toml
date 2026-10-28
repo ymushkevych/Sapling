@@ -1,0 +1,12 @@
+# This is the "settings" file that sapling uses when generating trees
+# Each project has its own sapling_config.toml file, but all trees within a single project share the same one
+# This file should be edited using sapling.py -s or sapling.py --settings
+# However, if you somehow made an error, you will need to manually reconfigure the settings
+
+[Project_Details]
+  argument_separator = ":" #what symbol does the system use to separate arguments into useable chunks?
+                           #this cannot be an empty string or a space
+  save_when_exiting = "True" #does exiting automatically save?
+[Tree_Details]
+  root_name = "S" #name of the root (first) node when generating a new tree
+  root_text = "Sentence" #text of the root (first) node when generating a new tree
