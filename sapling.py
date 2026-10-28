@@ -1,6 +1,6 @@
 #!/usr/bin/env -S python3 -B
 
-import time, argparse, os, sys, nodes, trees
+import time, argparse, os, sys, nodes, trees, config
 from pathlib import Path
 
 sys.dont_write_bytecode=True
@@ -15,44 +15,99 @@ parser.add_argument("-r", "--rename", nargs=2, type=str, help="rename the given 
 parser.add_argument("-c", "--clear", nargs=1, type=str, help="clear the given tree without deleting it", metavar="<tree>", dest="clear")
 parser.add_argument("-l", "--list", action='store_true', help="list all trees in the current directory", dest="list")
 parser.add_argument("-e", "--edit", nargs=1, type=str, help="edit the given tree", metavar="<tree>", dest="edit")
+parser.add_argument("-s", "--settings", action='store_true', help="configure the settings", dest="configure")
 
 argv = parser.parse_args()
-argSep: str = ":"
 
-def parse_edit_commands(tree: trees.Tree, cmds: list[str]):
-	match cmds[0].strip():
-		case "add":
-			if len (cmds) == 4:
-				tree.Nodes = tree.add_node(cmds[1].strip(), cmds[2].strip(), cmds[3].strip())
-			else:
-				print(f"\033[90mToo little or too few arguments passed. Expected 3, got {len(cmds)-1}\033[0m")
-		case "remove":
-			if len(cmds) == 2:
-				tree.Nodes = tree.remove_node(cmds[1].strip())
-			else:
-				print(f"\033[90mToo little or too few arguments passed. Expected 1, got {len(cmds)-1}\033[0m")
-		case "help":
-			print (f"\033[90m\x1b[1mAddingNodes\x1b[0m \033[90madd {argSep} <name> {argSep} <text> {argSep} <parent name>\033[0m")
-			print (f"\033[90m\x1b[1mRemovingNodes\x1b[0m \033[90mremove {argSep} <name>\033[0m")
-			print (f"\033[90m\x1b[1mFinishEditing\x1b[0m \033[90mdone\033[0m")
-			print (f"\033[90m\x1b[1mSave\x1b[0m \033[90msave\033[0m")
-		case "save":
-			tree.store(f"./{tree.Name}.json")
-		case _:
-			print (f"\033[90munrecognized command\033[0m")
+def configure_settings():
+  def parse_configure_settings_commands(cmds: list[str])->dict[str]:
+    settings: dict[str] = {"argsep": config.argsep(), "saveonexit": config.saveonexit(), "rootname": config.rootname(), "roottext": config.roottext()}
+    match cmds[0].strip():
+      case "set":
+        if len (cmds) == 1:
+          print ("\033[90mExpected configuration item to change\033[0m")
+        else:
+          match cmds[1].strip():
+            case "rootname":
+              if len (cmds) == 3:
+                settings["rootname"] = cmds[2].strip()
+              else:
+                print (f"\033[90mToo many arguments passed. Expected 2, got {len(cmds)-1}\033[0m")
+            case "roottext":
+              if len (cmds) == 3:
+                settings["roottext"] = cmds[2].strip()
+              else:
+                print (f"\033[90mToo many arguments passed. Expected 2, got {len(cmds)-1}\033[0m")
+            case "argsep":
+              if len (cmds) == 3:
+                settings["argsep"] = cmds[2].strip()
+              else:
+                print (f"\033[90mToo many arguments passed. Expected 2, got {len(cmds)-1}\033[0m")
+            case "saveonexit":
+              if len (cmds) == 3:
+                if cmds[2].strip() in ["True", "False"]:
+                  settings["saveonexit"] = cmds[2].strip()
+                else:
+                  print ("\033[90mImproper value used when configuring settings\033[0m")
+              else:
+                print (f"\033[90mToo many arguments passed. Expected 2, got {len(cmds)-1}\033[0m")
+        return settings
+      case "save":
+        config.store(settings)
+      case _:
+        print ("\033[90munrecognized command\033[0m")
+  saveonexit: bool = config.saveonexit()
+  argSep: str = config.argsep()
+  cmd = str(input("\033[90m- \033[0m"))
+  settings: dict[str] = {"argsep": config.argsep(), "saveonexit": config.saveonexit(), "rootname": config.rootname(), "roottext": config.roottext()}
+  while str(cmd).lower() != "done":
+    cmdarr = cmd.split(argSep)
+    settings = parse_configure_settings_commands(cmdarr)
+    cmd = str(input("\033[90m- \033[0m"))
+  if saveonexit:
+    config.store(settings)
+  else:
+    return 0
 
 def edit_tree(name: str):
-	if os.path.isfile(f"{name}.json"):
-		cmd = str(input("\033[90m- \033[0m"))
-		tree: trees.Tree = trees.read(name)
-		while str(cmd).lower() != "done":
-			cmdarr = cmd.split(argSep)
-			parse_edit_commands(tree, cmdarr)
-			cmd = str(input("\033[90m- \033[0m"))
-		return 0
-	else:
-		print(f"\033[90m\"{name}\" cannot be edited as it does not exist\033[0m")
-		sys.exit(1)
+  def parse_edit_tree_commands(tree: trees.Tree, cmds: list[str]):
+    match cmds[0].strip():
+      case "add":
+        if len (cmds) == 4:
+          tree.Nodes = tree.add_node(cmds[1].strip(), cmds[2].strip(), cmds[3].strip())
+        else:
+          print(f"\033[90mToo little or too many arguments passed. Expected 3, got {len(cmds)-1}\033[0m")
+      case "remove":
+        if len(cmds) == 2:
+          tree.Nodes = tree.remove_node(cmds[1].strip())
+        else:
+          print(f"\033[90mToo little or too many arguments passed. Expected 1, got {len(cmds)-1}\033[0m")
+      case "help":
+        print (f"\033[90m\x1b[1mAddingNodes\x1b[0m \033[90madd {argSep} <name> {argSep} <text> {argSep} <parent name>\033[0m")
+        print (f"\033[90m\x1b[1mRemovingNodes\x1b[0m \033[90mremove {argSep} <name>\033[0m")
+        print (f"\033[90m\x1b[1mFinishEditing\x1b[0m \033[90mdone\033[0m")
+        print (f"\033[90m\x1b[1mSave\x1b[0m \033[90msave\033[0m")
+      case "save":
+        tree.store(f"./{tree.Name}.json")
+      case _:
+        print ("\033[90munrecognized command\033[0m")
+  argSep: str = config.argsep()
+  saveonexit: bool = config.saveonexit()
+  if os.path.isfile(f"./{name}.json"):
+    cmd = str(input("\033[90m- \033[0m"))
+    tree: trees.Tree = trees.read(name)
+    while str(cmd).lower() != "done":
+      cmdarr = cmd.split(argSep)
+      parse_edit_tree_commands(tree, cmdarr)
+      cmd = str(input("\033[90m- \033[0m"))
+    if saveonexit:
+      tree.store(f"./{tree.Name}.json")
+    else:
+      return 0
+  else:
+    print(f"\033[90m\"{name}\" cannot be edited as it does not exist\033[0m")
+    sys.exit(1)
+
 
 def list_trees():
 	if len([item for item in Path ("./").glob("*.json") if item.is_file()]) == 0:
@@ -144,6 +199,18 @@ def main():
 				pass
 			case _:
 				edit_tree(argv.edit[0])
+		match argv.configure:
+			case False:
+				pass
+			case True:
+				configure_settings()
 
 if __name__ == "__main__":
-	main()
+	if config.config_exists():
+		if config.is_config_formatted():
+			main()
+		else:
+			print("\033[90mConfig file is not configured properly\033[0m")
+	else:
+		print("\033[90mConfig file not found\033[0m")
+	sys.exit(1)
