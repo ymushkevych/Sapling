@@ -9,4 +9,4 @@
   save_when_exiting = "True" #does exiting automatically save?
 [Tree_Details]
   root_name = "S" #name of the root (first) node when generating a new tree
-  root_text = "Sentence" #text of the root (first) node when generating a new tree
+  root_text = "S" #text of the root (first) node when generating a new tree
