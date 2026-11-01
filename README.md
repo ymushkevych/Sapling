@@ -1,7 +1,7 @@
 # Sapling
 Sapling is a generator and visualizer* for linguistic syntax trees. Trees are stored as `.json` files in your working directory.
 
-*The visualization process is not yet implemented
+*The visualization process is not yet fully implemented
 
 # Setup
 
@@ -16,6 +16,7 @@ The setup process is as follows:
   - [sapling.py](./sapling.py)
   - [sapling_config.toml](./sapling_config.toml)
   - [trees.py](./trees.py)
+  - [visualizer.py](./visualizer.py)
 2. make `sapling.py` an executable 
 ```sh
   chmod + x ./sapling.py
@@ -50,5 +51,6 @@ or
 
 # Support
 
-Sapling currently only supports Unix, Unix-like, and POSIX-compliant systems that implement the Unix file system, as all file paths are hard-coded to use '/' as the directory delimiter
-Windows support is planned but not a priority at the moment
+Sapling currently only supports Unix, Unix-like, and POSIX-compliant systems that implement the Unix file system, as all file paths are hard-coded to use '/' as the directory delimiter.
+
+Windows support is planned but not a priority at the moment.
