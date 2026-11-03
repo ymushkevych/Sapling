@@ -19,7 +19,7 @@ The setup process is as follows:
   - [visualizer.py](./visualizer.py)
 2. make `sapling.py` an executable 
 ```sh
-  chmod + x ./sapling.py
+  chmod +x ./sapling.py
 ```
 
 # Usage
