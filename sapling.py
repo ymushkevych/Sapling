@@ -1,6 +1,6 @@
 #!/usr/bin/env -S python3 -B
 
-import time, argparse, os, sys, nodes, trees, config, visualizer, 
+import time, argparse, os, sys, nodes, trees, config, visualizer
 from pathlib import Path
 
 sys.dont_write_bytecode=True
@@ -16,7 +16,7 @@ parser.add_argument("-c", "--clear", nargs=1, type=str, help="clear the given tr
 parser.add_argument("-l", "--list", action='store_true', help="list all trees in the current directory", dest="list")
 parser.add_argument("-e", "--edit", nargs=1, type=str, help="edit the given tree", metavar="<tree>", dest="edit")
 parser.add_argument("-s", "--settings", action='store_true', help="configure the settings", dest="configure")
-parser.add_argument("-v", "--visualize", nargs=2, type=str, help="visualize the given tree on the screen", metavar=("<tree>", "<mode>"), dest="vis")
+parser.add_argument("-v", "--visualize", nargs=1, type=str, help="visualize the given tree to the screen", metavar=("<tree>"), dest="vis")
 
 argv = parser.parse_args()
 
@@ -52,16 +52,16 @@ def configure_settings():
 									print ("\033[90mImproper value used when configuring settings\033[0m")
 							else:
 								print (f"\033[90mToo many arguments passed. Expected 2, got {len(cmds)-1}\033[0m")
-					return settings
+				return settings
 			case "save":
 				config.store(settings)
-			case "help": 
-				print·(f"\033[90m\x1b[1mSetting·Name·of·Root·Node\x1b[0m·\033[90mset·{argSep}·rootname·{argSep}·<root·name>\033[0m")
-				print·(f"\033[90m\x1b[1mSetting·Text·of·Root·Node\x1b[0m·\033[90mset·{argSep}·roottext·{argSep}·<root·text>\033[0m")
-				print·(f"\033[90m\x1b[1mSetting·Argument·Separator\x1b[0m·\033[90mset·{argSep}·argsep·{argSep}·<argument·separator>\033[0m")
-				print·(f"\033[90m\x1b[1mSetting·If·Exiting·Should·Save\x1b[0m·\033[90mset·{argSep}·saveonexit·{argSep}·<True|False>\033[0m")
-				print·(f"\033[90m\x1b[1mFinish·Editing\x1b[0m·\033[90mdone\033[0m")
-				print·(f"\033[90m\x1b[1mSave\x1b[0m·\033[90msave\033[0m")
+			case "help":
+				print (f"\033[90m\x1b[1mSetting Name of Root Node\x1b[0m \033[90mset {argSep} rootname {argSep} <root name>\033[0m")
+				print (f"\033[90m\x1b[1mSetting Text of Root Node\x1b[0m \033[90mset {argSep} roottext {argSep} <root text>\033[0m")
+				print (f"\033[90m\x1b[1mSetting Argument Separator\x1b[0m \033[90mset {argSep} argsep {argSep} <argument separator>\033[0m")
+				print (f"\033[90m\x1b[1mSetting If Exiting Should Save\x1b[0m \033[90mset {argSep} saveonexit {argSep} <True|False>\033[0m")
+				print (f"\033[90m\x1b[1mFinish Editing\x1b[0m \033[90mdone\033[0m")
+				print (f"\033[90m\x1b[1mSave\x1b[0m \033[90msave\033[0m")
 			case _:
 				print ("\033[90munrecognized command\033[0m")
 	saveonexit: bool = config.saveonexit()
@@ -172,7 +172,7 @@ def edit_tree(name: str):
 	else:
 		print(f"\033[90m\"{name}\" cannot be edited as it does not exist\033[0m")
 		sys.exit(1)
-		
+
 def list_trees():
 	if len([item for item in Path ("./").glob("*.json") if item.is_file()]) == 0:
 		print(f"\033[90mNo trees found in current directory\033[0m")
@@ -198,7 +198,7 @@ def rename_tree(old_name: str, new_name: str):
 
 def clear_tree(name: str):
 	if os.path.isfile(f"{name}.json"):
-		with open(f"{name}.json") as tree:
+		with open(f"{name}.json", "w") as tree:
 			tree = ""
 		print(f"\033[90mTree \"{name}\" successfully cleared on {now}\033[0m")
 	else:
@@ -206,9 +206,9 @@ def clear_tree(name: str):
 		sys.exit(1)
 
 def delete_tree(name: str):
-	if os.path.isfile(f"{name}.json"):
-		os.remove(f"{name}.json")
-		if os.path.isfile(f"{name}.json"):
+	if os.path.isfile(f"./{name}.json"):
+		os.remove(f"./{name}.json")
+		if os.path.isfile(f"./{name}.json"):
 			print(f"\033[90mFailed to delete tree \"{name}\"\033[0m")
 			sys.exit(1)
 		else:
@@ -218,7 +218,7 @@ def delete_tree(name: str):
 		sys.exit(1)
 
 def make_tree(name: str):
-	if name in [item for item in Path("./").glob("*.json") if item.is_file()]:
+	if f"{name}.json" in [str(item) for item in Path("./").glob("*.json") if item.is_file()]:
 		print("\033[90mTree with that name already exists\033[0m")
 		sys.exit(1)
 	else:
@@ -271,15 +271,16 @@ def main():
 		match argv.vis:
 			case None:
 				pass
-			casse _:
-				visualizer.visualize(argv.vis[0], argv.vis[1])
+			case _:
+				visualizer.visualize(argv.vis[0])
 
 if __name__ == "__main__":
 	if config.config_exists():
 		if config.is_config_formatted():
 			main()
+			sys.exit(0)
 		else:
-			print("\033[90mConfig file is not configured properly\033[0m")
+			print ("\033[90mConfig file is not configured properly\033[0m")
 	else:
-		print("\033[90mConfig file not found\033[0m")
+		print ("\033[90mConfig file not found\033[0m")
 	sys.exit(1)
