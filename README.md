@@ -1,7 +1,7 @@
 # Sapling
-Sapling is a generator and visualizer* for linguistic syntax trees. Trees are stored as `.json` files in your working directory.
+Sapling is a generator and visualizer for linguistic syntax trees. Trees are stored as `.json` files in your working directory.
 
-*The visualization process is not yet fully implemented
+Visualization is done through the python `matplotlib` library. Visualized trees can be stored as `.png`s on your device
 
 # Setup
 
@@ -45,12 +45,33 @@ or
 ```
 
 # Dependencies
-  Sapling requires `python3` to work. 
+  1. python3
 
-  The ability to run commands from the terminal is also a necessity
+     For Linux users, this is already on your device as a dependency
+     
+     For MacOS users, donwload [here](https://www.python.org/downloads/macos/)
+     
+     For Windows users, download [here](https://www.python.org/downloads/windows/)
 
+     For BSD (Free, Net, etc.) users, download [here](https://www.python.org/downloads/source/) (other Unix-like systems also download from here)
+  2. matplotlib
+     
+     For Linux users, download with
+     ```sh
+     apt install python3-matplotlib
+     ```
+     (^^for Ubuntu and Debian-based systems)
+     
+     or
+     ```sh
+     pip install matplotlib
+     ```
+     or whatever works for you 
+
+     For users of other operating systems, I am unable to test what works and doesn't work for your system. Feel free to make a pr with the proper installation guide for your system
+  
 # Support
 
-Sapling currently only supports Unix, Unix-like, and POSIX-compliant systems that implement the Unix file system, as all file paths are hard-coded to use '/' as the directory delimiter.
+Sapling currently only supports Unix, Unix-like, and POSIX-compliant systems that implement the Unix file system, as all file paths are hard-coded to use '/' as the directory delimiter. (Note that only Linux has been actually tested on)
 
 Windows support is planned but not a priority at the moment.
