@@ -5,11 +5,11 @@ import sys
 
 sys.dont_write_bytecode=True
 
-@dataclas
+@dataclass
 class FlatNode:
 	Text: str
 	ChildNodes: List[FlatNode] = field(default_factory=list)
-
+	
 @dataclass 
 class Node:
 	Name: str #what the node is called in data
@@ -17,15 +17,15 @@ class Node:
 	Parent: str
 	ChildNodes: List[Node] = field(default_factory=list)
   
-	def _post__init__(self: Node):
+	def __post__init__(self: Node):
 		self = self
 	def parent(self)->str:
 		return self.Parent
 	def children(self)->List[str]:
 		return [child.Name for child in [node for node in self.ChildNodes if node is not None]]
-	def rename(self, name: str)
+	def rename(self, name: str):
 		self.Name = name
-	def retext(self, text: str)
+	def retext(self, text: str):
 		self.Text = text
 
 	def flatten(self)->FlatNode:
@@ -39,5 +39,5 @@ class Node:
 def new(Name: str, Text: str, Parent: str):
 	return Node(Name, Text, Parent, [])
 def from_raw(Name: str, Text: str, Parent: str, ChildNodes: List[Node]):
-  return Node(Name, Text, Parent, ChildNodes)
+	return Node(Name, Text, Parent, ChildNodes)
 
